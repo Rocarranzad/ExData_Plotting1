@@ -18,13 +18,19 @@ data <- read_delim("./data/household_power_consumption.txt",
                    delim = ";", 
                    na = c("", "?"))
 data$Date <- dmy(data$Date)
+data$Time <- hms::as_hms(data$Time)
 data <- data %>% 
     filter(Date >= as.Date("2007-02-01") & Date <= as.Date("2007-02-02"))
 
-# Create a histogram of Global Active Power as a . png.
-png("plot1.png", width = 480, height = 480)
-hist(data$Global_active_power,
-     col = "red",
-     main = "Global Active Power",
-     xlab = "Global Active Power (kilowatts)")
+# Create a data-time variable.
+data$dttm <- as.POSIXct(strptime(paste(data$Date, data$Time),
+                                format = "%Y-%m-%d %H:%M:%S"))
+
+# Create a linear plot of Global Active Power ~ Data-Time and save into a 
+# .png with the png graphics device. Close device. 
+png("plot2.png", width = 480, height = 480)
+plot(data$dttm, data$Global_active_power,
+     type = "l",
+     xlab = "",
+     ylab = "Global Active Power (kilowatts)")
 dev.off()
